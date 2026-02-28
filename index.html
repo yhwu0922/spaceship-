@@ -22,9 +22,21 @@
 
         </div>
         <div id="flash-overlay"></div>
+
+        <div id="start-screen">
+            <h1>太空迷宮</h1>
+            <p>請輸入您的指揮官 ID 以開始任務：</p>
+            <input type="text" id="player-id-input" placeholder="例如：Skywalker" maxlength="15" autocomplete="off">
+            <button id="start-btn">開始遊戲</button>
+        </div>
+
         <div id="end-screen" class="hidden">
             <h1>任務完成！</h1>
             <p>通關時間：<span id="final-time">00:00.000</span></p>
+            <div id="leaderboard-container">
+                <h2>🏆 最佳紀錄 (Top 5) 🏆</h2>
+                <ol id="leaderboard-list"></ol>
+            </div>
             <button id="restart-btn">重新開始遊戲</button>
         </div>
     </div>

@@ -8,6 +8,14 @@ const restartBtn = document.getElementById('restart-btn');
 const toggleEditorBtn = document.getElementById('toggle-editor-btn');
 const exportMapBtn = document.getElementById('export-map-btn');
 
+const startScreen = document.getElementById('start-screen');
+const playerIdInput = document.getElementById('player-id-input');
+const startBtn = document.getElementById('start-btn');
+const leaderboardList = document.getElementById('leaderboard-list');
+
+let currentPlayerId = "Anonymous";
+const LEADERBOARD_KEY = 'space_maze_leaderboard';
+
 // Game Constants
 const TILE_SIZE = 60;
 const CANVAS_WIDTH = 3840;
@@ -20,19 +28,19 @@ const MAP_DATA = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 3, 1],
+    [1, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 3, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
@@ -48,9 +56,6 @@ const keys = {
 window.addEventListener('keydown', (e) => {
     if (keys.hasOwnProperty(e.code)) {
         keys[e.code] = true;
-        if (gameState === 'start') {
-            startGame();
-        }
     }
 });
 
@@ -62,6 +67,12 @@ window.addEventListener('keyup', (e) => {
 
 restartBtn.addEventListener('click', () => {
     resetGame(true);
+});
+
+startBtn.addEventListener('click', () => {
+    const name = playerIdInput.value.trim();
+    currentPlayerId = name ? name : "Anonymous";
+    startGame();
 });
 
 // ------------ EDITOR LOGIC ------------
@@ -161,6 +172,8 @@ let elapsedAtDeath = 0; // retain time when dying
 let lastTime = 0;
 
 let walls = [];
+let teleporters = [];
+let teleportCooldown = 0;
 let spawnX = 0, spawnY = 0;
 let targetX = 0, targetY = 0;
 
@@ -169,7 +182,8 @@ let player = {
     y: 0,
     width: 36,
     height: 36,
-    speed: 350 // pixels per sec
+    speed: 350, // pixels per sec
+    isGiant: false
 };
 
 let enemies = [];
@@ -177,6 +191,7 @@ let enemies = [];
 // Initialize map walls and spawn points
 function initMap() {
     walls = [];
+    teleporters = [];
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLUMNS; c++) {
             const val = MAP_DATA[r][c];
@@ -190,6 +205,8 @@ function initMap() {
             } else if (val === 3) {
                 targetX = x;
                 targetY = y;
+            } else if (val === 4) {
+                teleporters.push({ x: x + TILE_SIZE / 2, y: y + TILE_SIZE / 2, width: TILE_SIZE, height: TILE_SIZE });
             }
         }
     }
@@ -228,12 +245,14 @@ function addEnemies() {
 function resetGame(fullReset = false) {
     player.x = spawnX;
     player.y = spawnY;
+    player.isGiant = false;
 
     if (fullReset) {
         gameState = 'start';
         elapsedAtDeath = 0;
         gameStartTime = 0;
         endScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
         timerEl.innerText = '00:00.000';
         addEnemies(); // reset enemy positions
     }
@@ -242,6 +261,7 @@ function resetGame(fullReset = false) {
 function startGame() {
     if (isEditing) return;
     gameState = 'playing';
+    startScreen.classList.add('hidden');
     gameStartTime = performance.now();
 }
 
@@ -307,6 +327,29 @@ function update(deltaTime) {
     if (checkOverlap(player, portalRect)) {
         winGame(elapsed);
     }
+
+    // Teleporter logic
+    if (teleportCooldown > 0) {
+        teleportCooldown -= deltaTime;
+    } else {
+        for (let t of teleporters) {
+            if (checkOverlap(player, t)) {
+                const otherTeleporters = teleporters.filter(tp => tp !== t);
+                if (otherTeleporters.length > 0) {
+                    const dest = otherTeleporters[Math.floor(Math.random() * otherTeleporters.length)];
+                    player.x = dest.x;
+                    player.y = dest.y;
+                    teleportCooldown = 1500; // 1.5 seconds cooldown
+
+                    player.isGiant = true;
+                    setTimeout(() => {
+                        player.isGiant = false;
+                    }, 1000);
+                }
+                break;
+            }
+        }
+    }
 }
 
 function checkWallCollision(entity) {
@@ -351,12 +394,43 @@ function killPlayer() {
     // Reset position
     player.x = spawnX;
     player.y = spawnY;
+    player.isGiant = false;
 }
 
 function winGame(finalScoreMs) {
     gameState = 'end';
     updateTimerText(finalScoreMs, finalTimeEl);
     endScreen.classList.remove('hidden');
+
+    saveToLeaderboard(currentPlayerId, finalScoreMs);
+    renderLeaderboard();
+}
+
+function saveToLeaderboard(name, timeMs) {
+    let board = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+    board.push({ name, timeMs });
+    board.sort((a, b) => a.timeMs - b.timeMs);
+    board = board.slice(0, 5);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
+}
+
+function renderLeaderboard() {
+    const board = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
+    leaderboardList.innerHTML = '';
+    board.forEach(entry => {
+        const li = document.createElement('li');
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'name';
+        nameSpan.textContent = entry.name;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'time';
+        timeSpan.textContent = formatTime(entry.timeMs);
+
+        li.appendChild(nameSpan);
+        li.appendChild(timeSpan);
+        leaderboardList.appendChild(li);
+    });
 }
 
 function formatTime(ms) {
@@ -404,11 +478,24 @@ function draw() {
         ctx.fillText('🪨', wall.x + wall.width / 2, wall.y + wall.height / 2 + 5);
     }
 
+    // Draw Teleporters
+    ctx.font = `${TILE_SIZE * 0.9}px Arial`;
+    for (let t of teleporters) {
+        ctx.fillText('🌌', t.x, t.y + 5);
+    }
+    ctx.font = `${TILE_SIZE * 0.8}px Arial`;
+
     // Draw Portal
     ctx.fillText('🌀', targetX + TILE_SIZE / 2, targetY + TILE_SIZE / 2 + 5);
 
     // Draw Player
+    if (player.isGiant) {
+        ctx.font = `${TILE_SIZE * 0.8 * 3}px Arial`;
+    }
     ctx.fillText('🚀', player.x, player.y + 5);
+    if (player.isGiant) {
+        ctx.font = `${TILE_SIZE * 0.8}px Arial`; // Reset font
+    }
     // Draw Enemies
     for (let enemy of enemies) {
         ctx.fillText(enemy.emoji, enemy.x, enemy.y + 5);
