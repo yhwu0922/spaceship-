@@ -12,7 +12,15 @@
     <div id="game-container">
         <canvas id="gameCanvas" width="3840" height="1080"></canvas>
         <div id="ui-layer">
-            <div id="timer">00:00.000</div>
+            <div id="timer" class="hidden">00:00.000</div>
+
+            <!-- Mobile D-Pad -->
+            <div id="d-pad">
+                <button id="btn-up" class="d-btn">▲</button>
+                <button id="btn-left" class="d-btn">◀</button>
+                <button id="btn-down" class="d-btn">▼</button>
+                <button id="btn-right" class="d-btn">▶</button>
+            </div>
 
             <!-- Editor UI Controls -->
             <div id="editor-controls">

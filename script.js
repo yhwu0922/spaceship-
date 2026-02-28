@@ -65,6 +65,36 @@ window.addEventListener('keyup', (e) => {
     }
 });
 
+// Mobile D-pad logic
+const btnUp = document.getElementById('btn-up');
+const btnDown = document.getElementById('btn-down');
+const btnLeft = document.getElementById('btn-left');
+const btnRight = document.getElementById('btn-right');
+
+function bindBtn(btn, key) {
+    if (!btn) return;
+    const press = (e) => {
+        e.preventDefault();
+        keys[key] = true;
+        btn.classList.add('active');
+    };
+    const release = (e) => {
+        e.preventDefault();
+        keys[key] = false;
+        btn.classList.remove('active');
+    };
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('touchstart', press, { passive: false });
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+    btn.addEventListener('touchend', release);
+}
+
+bindBtn(btnUp, 'ArrowUp');
+bindBtn(btnDown, 'ArrowDown');
+bindBtn(btnLeft, 'ArrowLeft');
+bindBtn(btnRight, 'ArrowRight');
+
 restartBtn.addEventListener('click', () => {
     resetGame(true);
 });
@@ -500,6 +530,17 @@ function draw() {
     for (let enemy of enemies) {
         ctx.fillText(enemy.emoji, enemy.x, enemy.y + 5);
     }
+
+    // Render Timer inside the wall box natively on the Canvas map
+    // The visual top-center enclosure spans columns 28-35 (x=31.5) and rows 1-2 (y=1.5).
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 70px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(0, 255, 255, 0.8)';
+    ctx.fillText(timerEl.innerText, 31.5 * TILE_SIZE, 1.8 * TILE_SIZE);
+    ctx.shadowBlur = 0; // reset
 
     // Fog of War
     // drawFog();

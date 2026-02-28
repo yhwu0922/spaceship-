@@ -41,6 +41,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
     padding: 2.5%;
     pointer-events: none;
     z-index: 10;
@@ -53,6 +54,10 @@ body {
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
     text-align: center;
     font-family: monospace;
+}
+
+#timer.hidden {
+    display: none;
 }
 
 #editor-controls {
@@ -266,4 +271,80 @@ body {
 #leaderboard-list li span.name {
     color: #00ffff;
     font-weight: bold;
+}
+
+/* Mobile Controls */
+#d-pad {
+    position: absolute;
+    bottom: 5vh;
+    left: 2vw;
+    width: 200px;
+    height: 200px;
+    z-index: 50;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    /* Let the container be transparent to clicks */
+}
+
+#d-pad:hover {
+    opacity: 0.9;
+}
+
+.d-btn {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    border-radius: 50%;
+    background: #333;
+    color: #fff;
+    border: 2px solid #555;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+    transition: transform 0.1s, background 0.1s;
+    pointer-events: auto;
+    /* Buttons themselves should receive clicks */
+    touch-action: manipulation;
+}
+
+/* Diamond shape arrangement */
+#btn-up {
+    top: 10px;
+    left: 70px;
+}
+
+#btn-left {
+    top: 70px;
+    left: 10px;
+}
+
+#btn-right {
+    top: 70px;
+    left: 130px;
+}
+
+#btn-down {
+    top: 130px;
+    left: 70px;
+}
+
+.d-btn.active,
+.d-btn:active {
+    background: #00ffff;
+    color: #000;
+    transform: scale(0.9);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+    #d-pad {
+        transform: scale(0.8);
+        transform-origin: bottom left;
+        bottom: 2vh;
+        left: 1vw;
+    }
 }
