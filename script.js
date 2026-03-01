@@ -218,6 +218,27 @@ let player = {
 
 let enemies = [];
 
+// Stars logic
+let stars = [];
+const NUM_STARS = 600;
+
+function initStars() {
+    stars = [];
+    const colors = ['#ffffff', '#ffe9c4', '#d4fbff', '#ffb6c1', '#add8e6'];
+    for (let i = 0; i < NUM_STARS; i++) {
+        stars.push({
+            x: Math.random() * CANVAS_WIDTH,
+            y: Math.random() * CANVAS_HEIGHT,
+            size: Math.random() < 0.8 ? 5 : 10, // 5 to 10 pixels
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: Math.random(),
+            twinkleSpeed: 0.001 + Math.random() * 0.003,
+            twinkleDir: Math.random() > 0.5 ? 1 : -1,
+            shape: Math.random() > 0.5 ? 'circle' : 'star'
+        });
+    }
+}
+
 // Initialize map walls and spawn points
 function initMap() {
     walls = [];
@@ -380,6 +401,18 @@ function update(deltaTime) {
             }
         }
     }
+
+    // Update Stars
+    for (let star of stars) {
+        star.alpha += star.twinkleSpeed * star.twinkleDir * deltaTime;
+        if (star.alpha > 1) {
+            star.alpha = 1;
+            star.twinkleDir = -1;
+        } else if (star.alpha < 0.1) {
+            star.alpha = 0.1;
+            star.twinkleDir = 1;
+        }
+    }
 }
 
 function checkWallCollision(entity) {
@@ -479,6 +512,45 @@ function draw() {
     // Clear canvas
     ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Draw Stars
+    for (let star of stars) {
+        ctx.globalAlpha = star.alpha;
+        ctx.fillStyle = star.color;
+
+        if (star.shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        } else {
+            // Draw 5-pointed star
+            const spikes = 5;
+            const outerRadius = star.size / 2;
+            const innerRadius = star.size / 4;
+            let rot = Math.PI / 2 * 3;
+            let cx = star.x;
+            let cy = star.y;
+            let step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(star.x, star.y - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+                cx = star.x + Math.cos(rot) * outerRadius;
+                cy = star.y + Math.sin(rot) * outerRadius;
+                ctx.lineTo(cx, cy);
+                rot += step;
+
+                cx = star.x + Math.cos(rot) * innerRadius;
+                cy = star.y + Math.sin(rot) * innerRadius;
+                ctx.lineTo(cx, cy);
+                rot += step;
+            }
+            ctx.lineTo(star.x, star.y - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+    ctx.globalAlpha = 1.0;
 
     // Draw Editor Grid Overlay
     if (gameState === 'editing') {
@@ -591,6 +663,7 @@ function gameLoop(timestamp) {
 }
 
 // Start
+initStars();
 initMap();
 resetGame(true);
 requestAnimationFrame(gameLoop);
