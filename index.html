@@ -9,17 +9,51 @@
 </head>
 
 <body>
-    <div id="game-container">
-        <canvas id="gameCanvas" width="3840" height="1080"></canvas>
-        <div id="ui-layer">
-            <div id="timer" class="hidden">00:00.000</div>
+    <div id="layout-wrapper">
+        <div id="game-container">
+            <canvas id="gameCanvas" width="2880" height="1080"></canvas>
+            <!-- Canvas native D-Pad (hidden in CSS now if moved to sidebar) -->
+            <div id="d-pad" style="display: none;">
+                <button id="btn-up-canvas" class="d-btn">▲</button>
+                <button id="btn-left-canvas" class="d-btn">◀</button>
+                <button id="btn-down-canvas" class="d-btn">▼</button>
+                <button id="btn-right-canvas" class="d-btn">▶</button>
+            </div>
 
-            <!-- Mobile D-Pad -->
-            <div id="d-pad">
-                <button id="btn-up" class="d-btn">▲</button>
-                <button id="btn-left" class="d-btn">◀</button>
-                <button id="btn-down" class="d-btn">▼</button>
-                <button id="btn-right" class="d-btn">▶</button>
+            <!-- Editor UI Controls (Moved to UI sidebar) -->
+            <div id="flash-overlay"></div>
+
+            <div id="start-screen">
+                <h1>太空迷宮</h1>
+                <p>請輸入您的指揮官 ID 以開始任務：</p>
+                <input type="text" id="player-id-input" placeholder="例如：Skywalker" maxlength="15" autocomplete="off">
+                <button id="start-btn">開始遊戲</button>
+            </div>
+
+            <div id="end-screen" class="hidden">
+                <h1>任務完成！</h1>
+                <p>通關時間：<span id="final-time">00:00.000</span></p>
+                <div id="leaderboard-container">
+                    <h2>🏆 最佳紀錄 (Top 3) 🏆</h2>
+                    <ol id="leaderboard-list"></ol>
+                </div>
+                <button id="restart-btn">重新開始遊戲</button>
+            </div>
+        </div> <!-- End of game-container -->
+
+        <!-- Middle Blank Area -->
+        <div id="middle-blank"></div>
+
+        <!-- Sidebar for UI -->
+        <div id="sidebar">
+            <div id="sidebar-timer">00:00.000</div>
+
+            <div id="top1-display">
+                <span class="top1-title">🏆 Top 1 🏆</span>
+                <div class="top1-record">
+                    <span id="top1-name"></span>
+                    <span id="top1-time"></span>
+                </div>
             </div>
 
             <!-- Editor UI Controls -->
@@ -28,26 +62,15 @@
                 <button id="export-map-btn" class="hidden">匯出地圖陣列</button>
             </div>
 
-        </div>
-        <div id="flash-overlay"></div>
-
-        <div id="start-screen">
-            <h1>太空迷宮</h1>
-            <p>請輸入您的指揮官 ID 以開始任務：</p>
-            <input type="text" id="player-id-input" placeholder="例如：Skywalker" maxlength="15" autocomplete="off">
-            <button id="start-btn">開始遊戲</button>
-        </div>
-
-        <div id="end-screen" class="hidden">
-            <h1>任務完成！</h1>
-            <p>通關時間：<span id="final-time">00:00.000</span></p>
-            <div id="leaderboard-container">
-                <h2>🏆 最佳紀錄 (Top 5) 🏆</h2>
-                <ol id="leaderboard-list"></ol>
+            <div id="sidebar-d-pad">
+                <button id="btn-up" class="d-btn">▲</button>
+                <button id="btn-left" class="d-btn">◀</button>
+                <button id="btn-down" class="d-btn">▼</button>
+                <button id="btn-right" class="d-btn">▶</button>
             </div>
-            <button id="restart-btn">重新開始遊戲</button>
         </div>
-    </div>
+    </div> <!-- End of layout-wrapper -->
+
     <script src="script.js"></script>
 </body>
 

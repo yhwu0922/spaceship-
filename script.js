@@ -1,6 +1,5 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const timerEl = document.getElementById('timer');
 const flashOverlay = document.getElementById('flash-overlay');
 const endScreen = document.getElementById('end-screen');
 const finalTimeEl = document.getElementById('final-time');
@@ -13,34 +12,39 @@ const playerIdInput = document.getElementById('player-id-input');
 const startBtn = document.getElementById('start-btn');
 const leaderboardList = document.getElementById('leaderboard-list');
 
+// Top 1 Sidebar Elements
+const top1Display = document.getElementById('top1-display');
+const top1Name = document.getElementById('top1-name');
+const top1Time = document.getElementById('top1-time');
+
 let currentPlayerId = "Anonymous";
 const LEADERBOARD_KEY = 'space_maze_leaderboard';
 
 // Game Constants
 const TILE_SIZE = 60;
-const CANVAS_WIDTH = 3840;
+const CANVAS_WIDTH = 2880; // Changed from 3840 to 2880
 const CANVAS_HEIGHT = 1080;
-const COLUMNS = CANVAS_WIDTH / TILE_SIZE; // 32
+const COLUMNS = CANVAS_WIDTH / TILE_SIZE; // 48 (instead of 64 or 32)
 const ROWS = CANVAS_HEIGHT / TILE_SIZE;   // 18
 
 // 0: path, 1: wall, 2: start, 3: end
 const MAP_DATA = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1],
     [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
     [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-    [1, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 3, 1],
+    [1, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
@@ -65,11 +69,15 @@ window.addEventListener('keyup', (e) => {
     }
 });
 
-// Mobile D-pad logic
+// Mobile D-pad logic (Sidebar version)
 const btnUp = document.getElementById('btn-up');
 const btnDown = document.getElementById('btn-down');
 const btnLeft = document.getElementById('btn-left');
 const btnRight = document.getElementById('btn-right');
+
+// Sidebar UI References
+const sidebarTimerEl = document.getElementById('sidebar-timer');
+const sidebarLeaderboardList = document.getElementById('sidebar-leaderboard-list');
 
 function bindBtn(btn, key) {
     if (!btn) return;
@@ -304,7 +312,7 @@ function resetGame(fullReset = false) {
         gameStartTime = 0;
         endScreen.classList.add('hidden');
         startScreen.classList.remove('hidden');
-        timerEl.innerText = '00:00.000';
+        if (sidebarTimerEl) sidebarTimerEl.innerText = '00:00.000';
         addEnemies(); // reset enemy positions
     }
 }
@@ -473,27 +481,45 @@ function saveToLeaderboard(name, timeMs) {
     let board = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
     board.push({ name, timeMs });
     board.sort((a, b) => a.timeMs - b.timeMs);
-    board = board.slice(0, 5);
+    board = board.slice(0, 3); // Changed from Top 5 to Top 3
     localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
 }
 
 function renderLeaderboard() {
     const board = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || '[]');
     leaderboardList.innerHTML = '';
+
     board.forEach(entry => {
-        const li = document.createElement('li');
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'name';
-        nameSpan.textContent = entry.name;
+        const createItem = () => {
+            const li = document.createElement('li');
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'name';
+            nameSpan.textContent = entry.name;
 
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'time';
-        timeSpan.textContent = formatTime(entry.timeMs);
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'time';
+            timeSpan.textContent = formatTime(entry.timeMs);
 
-        li.appendChild(nameSpan);
-        li.appendChild(timeSpan);
-        leaderboardList.appendChild(li);
+            li.appendChild(nameSpan);
+            li.appendChild(timeSpan);
+            return li;
+        };
+
+        leaderboardList.appendChild(createItem());
     });
+
+    // Update Top 1 in the sidebar
+    if (board.length > 0) {
+        if (top1Display) top1Display.classList.remove('hidden');
+        if (top1Name) top1Name.textContent = board[0].name;
+        if (top1Time) top1Time.textContent = formatTime(board[0].timeMs);
+    } else {
+        if (top1Display) {
+            top1Display.classList.remove('hidden'); // Show layout so user knows it exists
+        }
+        if (top1Name) top1Name.textContent = "無紀錄";
+        if (top1Time) top1Time.textContent = "--:--.---";
+    }
 }
 
 function formatTime(ms) {
@@ -504,8 +530,12 @@ function formatTime(ms) {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(remainingMs).padStart(3, '0')}`;
 }
 
-function updateTimerText(ms, el = timerEl) {
-    el.innerText = formatTime(ms);
+function updateTimerText(ms, el = sidebarTimerEl) {
+    const text = formatTime(ms);
+    if (el) { el.innerText = text; }
+    if (el !== sidebarTimerEl && sidebarTimerEl) {
+        sidebarTimerEl.innerText = text;
+    }
 }
 
 function draw() {
@@ -602,17 +632,7 @@ function draw() {
     for (let enemy of enemies) {
         ctx.fillText(enemy.emoji, enemy.x, enemy.y + 5);
     }
-
-    // Render Timer inside the wall box natively on the Canvas map
-    // The visual top-center enclosure spans columns 28-35 (x=31.5) and rows 1-2 (y=1.5).
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 70px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = 'rgba(0, 255, 255, 0.8)';
-    ctx.fillText(timerEl.innerText, 31.5 * TILE_SIZE, 1.8 * TILE_SIZE);
-    ctx.shadowBlur = 0; // reset
+    ctx.globalAlpha = 1.0;
 
     // Fog of War
     // drawFog();
@@ -665,5 +685,6 @@ function gameLoop(timestamp) {
 // Start
 initStars();
 initMap();
+renderLeaderboard(); // Ensure Top 1 loads on startup
 resetGame(true);
 requestAnimationFrame(gameLoop);

@@ -17,15 +17,44 @@ body {
     color: white;
 }
 
-#game-container {
-    position: relative;
+#layout-wrapper {
+    display: flex;
     width: 100vw;
     height: 100vh;
+    /* 3840 width x 1080 height = 32:9 ratio */
     max-width: calc(100vh * 32 / 9);
     max-height: calc(100vw * 9 / 32);
     aspect-ratio: 32 / 9;
-    background-color: #000;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    background-color: #000;
+}
+
+#game-container {
+    position: relative;
+    width: 75%;
+    /* 2880 / 3840 */
+    height: 100%;
+    flex-shrink: 0;
+}
+
+#middle-blank {
+    width: 12.5%;
+    /* 480 / 3840 */
+    height: 100%;
+    background-color: #000;
+    flex-shrink: 0;
+}
+
+#sidebar {
+    width: 12.5%;
+    /* 480 / 3840 */
+    flex-shrink: 0;
+    /* Removed background-color and border-left per user request to hide the sidebar visual */
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    position: relative;
+    z-index: 60;
 }
 
 #gameCanvas {
@@ -56,24 +85,68 @@ body {
     font-family: monospace;
 }
 
-#timer.hidden {
+#sidebar-timer {
+    font-size: 2vw;
+    /* scaled down from 4vw */
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    text-align: center;
+    font-family: monospace;
+    margin-bottom: 2vh;
+}
+
+#sidebar-timer.hidden {
     display: none;
 }
 
+#top1-display {
+    text-align: center;
+    margin-bottom: 2vh;
+    padding: 1vh 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+}
+
+#top1-display.hidden {
+    display: none;
+}
+
+#top1-display .top1-title {
+    display: block;
+    font-size: clamp(14px, 1.2vw, 24px);
+    color: #ffd700;
+    margin-bottom: 0.5vh;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+#top1-display .top1-record {
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    font-size: clamp(12px, 1vw, 20px);
+}
+
+#top1-display #top1-name {
+    color: #00ffff;
+}
+
+#top1-display #top1-time {
+    color: #fff;
+}
+
 #editor-controls {
-    position: absolute;
-    top: 2vw;
-    right: 2vw;
     display: flex;
     flex-direction: column;
-    gap: 1vw;
+    gap: 1vh;
+    margin-bottom: 2vh;
     pointer-events: auto;
     /* Enable clicking */
 }
 
 #editor-controls button {
-    padding: 0.8vw 1.5vw;
-    font-size: 1.2vw;
+    padding: 1vh 1vw;
+    font-size: 0.8vw;
+    /* scaled down from 1.2vw */
     background-color: #333;
     color: #fff;
     border: 2px solid #555;
@@ -273,7 +346,60 @@ body {
     font-weight: bold;
 }
 
-/* Mobile Controls */
+/* Mobile Controls Sidebar Version */
+#sidebar-d-pad {
+    position: relative;
+    width: 200px;
+    /* actually we should use vw too to scale. wait, 1440/3840 is 37.5%, wait 12.5% of 100vw is 12.5vw */
+    height: 12.5vw;
+    max-width: 100%;
+    margin: 4vh auto 0 auto;
+    opacity: 0.8;
+}
+
+#sidebar-d-pad:hover {
+    opacity: 1;
+}
+
+#sidebar-d-pad .d-btn {
+    position: absolute;
+    width: 4vw;
+    height: 4vw;
+    font-size: 1.5vw;
+    border-radius: 50%;
+    background: #333;
+    color: #fff;
+    border: 2px solid #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+    transition: transform 0.1s, background 0.1s;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+#sidebar-d-pad #btn-up {
+    top: 0%;
+    left: 35%;
+}
+
+#sidebar-d-pad #btn-down {
+    top: 70%;
+    left: 35%;
+}
+
+#sidebar-d-pad #btn-left {
+    top: 35%;
+    left: 0%;
+}
+
+#sidebar-d-pad #btn-right {
+    top: 35%;
+    left: 70%;
+}
+
+/* Mobile Controls Canvas Version (keep original for fallback) */
 #d-pad {
     position: absolute;
     bottom: 5vh;
