@@ -4,6 +4,7 @@ const flashOverlay = document.getElementById('flash-overlay');
 const endScreen = document.getElementById('end-screen');
 const finalTimeEl = document.getElementById('final-time');
 const restartBtn = document.getElementById('restart-btn');
+const tryAgainBtn = document.getElementById('try-again-btn');
 const toggleEditorBtn = document.getElementById('toggle-editor-btn');
 const exportMapBtn = document.getElementById('export-map-btn');
 
@@ -104,6 +105,10 @@ bindBtn(btnLeft, 'ArrowLeft');
 bindBtn(btnRight, 'ArrowRight');
 
 restartBtn.addEventListener('click', () => {
+    resetGame(true);
+});
+
+tryAgainBtn.addEventListener('click', () => {
     resetGame(true);
 });
 
@@ -215,6 +220,9 @@ let teleportCooldown = 0;
 let spawnX = 0, spawnY = 0;
 let targetX = 0, targetY = 0;
 
+let maxLives = 3;
+let currentLives = 3;
+
 let player = {
     x: 0,
     y: 0,
@@ -305,7 +313,10 @@ function resetGame(fullReset = false) {
         gameState = 'start';
         elapsedAtDeath = 0;
         gameStartTime = 0;
+        currentLives = maxLives;
+        updateLivesDisplay();
         endScreen.classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
         startScreen.classList.remove('hidden');
         if (sidebarTimerEl) sidebarTimerEl.innerText = '00:00.000';
         addEnemies(); // reset enemy positions
@@ -451,6 +462,14 @@ function checkOverlap(a, b) {
 }
 
 function killPlayer() {
+    currentLives--;
+    updateLivesDisplay();
+
+    if (currentLives <= 0) {
+        gameOver();
+        return;
+    }
+
     // Retain elapsed time
     elapsedAtDeath += (performance.now() - gameStartTime);
     gameStartTime = performance.now();
@@ -465,6 +484,18 @@ function killPlayer() {
     player.x = spawnX;
     player.y = spawnY;
     player.isGiant = false;
+}
+
+function gameOver() {
+    gameState = 'gameover';
+    document.getElementById('game-over-screen').classList.remove('hidden');
+}
+
+function updateLivesDisplay() {
+    const livesDiv = document.getElementById('lives-display');
+    if (livesDiv) {
+        livesDiv.innerText = '❤️'.repeat(currentLives);
+    }
 }
 
 function winGame(finalScoreMs) {
